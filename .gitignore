@@ -1,0 +1,16 @@
+.env
+
+tmp/
+
+*.exe
+*.exe~
+*.out
+
+.DS_Store
+Thumbs.db
+
+.idea/
+.vscode/
+*.swp
+
+.agents/
