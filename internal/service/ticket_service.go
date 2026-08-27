@@ -1,9 +1,13 @@
 package service
 
 import (
+	"errors"
 	"online-ticketing/internal/model"
 	"online-ticketing/internal/repository"
 )
+
+var ErrInvalidQuantity = errors.New("invalid quantity")
+var ErrTicketSoldOut = errors.New("ticket sold out")
 
 type TicketService struct {
 	tp *repository.TicketRepository
@@ -34,8 +38,15 @@ func (t *TicketService) CreateTicket(ticket model.Ticket) (model.Ticket, error) 
 
 func (t *TicketService) BuyTicket(ticket model.BuyTicketRequest, userId string) error {
 
+	if ticket.Quantity <= 0 {
+		return ErrInvalidQuantity
+	}
+
 	err := t.tp.CreateBuy(ticket, userId)
 	if err != nil {
+		if errors.Is(err, repository.ErrTicketSoldOut) {
+			return ErrTicketSoldOut
+		}
 		return err
 	}
 
