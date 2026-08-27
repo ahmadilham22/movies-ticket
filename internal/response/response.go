@@ -24,6 +24,22 @@ func ResponseError(c *gin.Context, err error) {
 		return
 	}
 
+	if errors.Is(err, service.ErrTicketSoldOut) {
+		c.JSON(409, gin.H{
+			"status":  "error",
+			"message": "Ticket sold out",
+		})
+		return
+	}
+
+	if errors.Is(err, service.ErrInvalidQuantity) {
+		c.JSON(400, gin.H{
+			"status":  "error",
+			"message": "Invalid quantity",
+		})
+		return
+	}
+
 	c.JSON(500, gin.H{
 		"status":  "error",
 		"message": "internal server error",
