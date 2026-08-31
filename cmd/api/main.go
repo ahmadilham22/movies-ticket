@@ -27,12 +27,17 @@ func main() {
 	userService := service.NewUserService(userRepository, []byte(cfg.SecretKey))
 	userHandler := handler.NewUserHandler(userService)
 
+	transactionRepository := repository.NewTransactionRepository(db)
+	transactionService := service.NewTransactionService(transactionRepository)
+	transactionHandler := handler.NewTransactionHandler(transactionService)
+
 	{
 		protectedRoute := r.Group("/")
 		protectedRoute.Use(middleware.AuthMiddleware([]byte(cfg.SecretKey)))
 		protectedRoute.POST("/tickets", ticketHandler.BuyTicket)
 		protectedRoute.POST("/tickets/create", ticketHandler.CreateTicket)
 		protectedRoute.GET("/users", userHandler.GetUsers)
+		protectedRoute.GET("/transactions", transactionHandler.GetTransaction)
 	}
 
 	{
