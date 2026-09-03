@@ -43,3 +43,31 @@ func (t *TransactionHandler) GetTransaction(ctx *gin.Context) {
 
 	response.ResponseSuccess(ctx, 200, "Data retrieved successfully", result)
 }
+
+func (t *TransactionHandler) CancelTransaction(ctx *gin.Context) {
+	bookingCode := ctx.Param("bookingCode")
+	val, exist := ctx.Get("userId")
+	if !exist {
+		ctx.JSON(401, gin.H{
+			"status":  "error",
+			"message": "Unauthorized",
+		})
+		return
+	}
+	userId, ok := val.(string)
+	if !ok {
+		ctx.JSON(500, gin.H{
+			"status":  "error",
+			"message": "Internal server error",
+		})
+		return
+	}
+
+	err := t.trs.CancelTransaction(bookingCode, userId)
+	if err != nil {
+		response.ResponseError(ctx, err)
+		return
+	}
+
+	response.ResponseSuccess(ctx, 200, "Transaction cancelled successfully", nil)
+}

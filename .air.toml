@@ -24,11 +24,11 @@ tmp_dir = "tmp"
   poll = true
   poll_interval = 500
   post_cmd = []
-  pre_cmd = []
+  pre_cmd = ["go build ./..."]
   rerun = false
   rerun_delay = 500
   send_interrupt = false
-  stop_on_error = false
+  stop_on_error = true
 
 [color]
   app = ""

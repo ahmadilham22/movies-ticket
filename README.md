@@ -27,6 +27,7 @@ To set up the project locally, follow these steps:
 - `POST /tickets/create`: Create an event
 - `GET /users`: Get a list of users
 - `GET /tickets`: Get a list of tickets
+- `PATCH /transactions/:bookingCode/cancel`: Cancel a transaction
 
 ## Authentication
 
