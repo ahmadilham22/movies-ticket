@@ -28,6 +28,7 @@ CREATE TABLE transactions (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
+    CONSTRAINT unique_booking_code UNIQUE (booking_code),
     CONSTRAINT fk_ticket FOREIGN KEY (ticket_id) REFERENCES tickets(id),
     CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id)
 )

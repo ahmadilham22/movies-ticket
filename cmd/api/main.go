@@ -13,12 +13,22 @@ import (
 )
 
 func main() {
-	cfg := config.Load()
+	cfg, err := config.Load()
+
+	if err != nil {
+		log.Fatalf("failed to load config: %v", err)
+	}
 
 	db := database.ConnectDB(cfg)
 	defer db.Close()
 
 	r := gin.Default()
+	err = r.SetTrustedProxies(nil)
+
+	if err != nil {
+		log.Fatalf("failed configured trusted proxy: %v", err)
+	}
+
 	ticketRepository := repository.NewTicketRepository(db)
 	ticketService := service.NewTicketService(ticketRepository)
 	ticketHandler := handler.NewTicketHandler(ticketService)
@@ -38,6 +48,7 @@ func main() {
 		protectedRoute.POST("/tickets/create", ticketHandler.CreateTicket)
 		protectedRoute.GET("/users", userHandler.GetUsers)
 		protectedRoute.GET("/transactions", transactionHandler.GetTransaction)
+		protectedRoute.PATCH("/transactions/:bookingCode/cancel", transactionHandler.CancelTransaction)
 	}
 
 	{

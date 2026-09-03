@@ -40,6 +40,22 @@ func ResponseError(c *gin.Context, err error) {
 		return
 	}
 
+	if errors.Is(err, service.ErrTransactionNotFound) {
+		c.JSON(404, gin.H{
+			"status":  "error",
+			"message": "Transaction not found",
+		})
+		return
+	}
+
+	if errors.Is(err, service.ErrTransactionAlreadyCancelled) {
+		c.JSON(409, gin.H{
+			"status":  "error",
+			"message": "Transaction already cancelled",
+		})
+		return
+	}
+
 	c.JSON(500, gin.H{
 		"status":  "error",
 		"message": "internal server error",

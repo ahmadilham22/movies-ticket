@@ -1,8 +1,10 @@
 package config
 
 import (
+	"errors"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -17,13 +19,14 @@ type AppConfig struct {
 	SecretKey  string
 }
 
-func Load() *AppConfig {
+func Load() (*AppConfig, error) {
 	err := godotenv.Load()
 
 	if err != nil {
 		log.Println("Warning: .env file not found, using system environment variables")
 	}
-	return &AppConfig{
+
+	cfg := &AppConfig{
 		Port:       os.Getenv("PORT"),
 		DBHost:     os.Getenv("DB_HOST"),
 		DBPort:     os.Getenv("DB_PORT"),
@@ -32,4 +35,10 @@ func Load() *AppConfig {
 		DBName:     os.Getenv("DB_NAME"),
 		SecretKey:  os.Getenv("SECRET_KEY"),
 	}
+
+	if strings.TrimSpace(cfg.SecretKey) == "" {
+		return nil, errors.New("SECRET_KEY is required")
+	}
+
+	return cfg, nil
 }
