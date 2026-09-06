@@ -9,16 +9,25 @@ import (
 var ErrTransactionNotFound = errors.New("transaction not found")
 var ErrTransactionAlreadyCancelled = errors.New("transaction already cancelled")
 
-type TransactionService struct {
-	tr *repository.TransactionRepository
+// Interface for transaction repository
+type transactionRepository interface {
+	GetTransactionByUserId(userId string) ([]model.Transaction, error)
+	CancelTransaction(bookingCode, userId string) error
 }
 
-func NewTransactionService(tr *repository.TransactionRepository) *TransactionService {
+// Dependency Injection for TransactionService
+type TransactionService struct {
+	tr transactionRepository
+}
+
+// NewTransactionService creates a new TransactionService
+func NewTransactionService(tr transactionRepository) *TransactionService {
 	return &TransactionService{
 		tr: tr,
 	}
 }
 
+// Method FetchTransactionByUserId fetches transactions by user ID
 func (t *TransactionService) FetchTransactionByUserId(userId string) ([]model.Transaction, error) {
 	result, err := t.tr.GetTransactionByUserId(userId)
 	if err != nil {
@@ -28,6 +37,7 @@ func (t *TransactionService) FetchTransactionByUserId(userId string) ([]model.Tr
 	return result, nil
 }
 
+// Method CancelTransaction cancels a transaction
 func (t *TransactionService) CancelTransaction(bookingCode, userId string) error {
 	err := t.tr.CancelTransaction(bookingCode, userId)
 	if err != nil {
