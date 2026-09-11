@@ -37,3 +37,14 @@ func (g *GenreRepository) CreateGenre(ctx context.Context, name string) (model.G
 	return genre, nil
 
 }
+
+func (g *GenreRepository) GetGenres(ctx context.Context) ([]model.Genre, error) {
+	genres := []model.Genre{}
+	query := "SELECT id, name, created_at, updated_at FROM genres ORDER BY LOWER(BTRIM(name)) ASC"
+	err := g.db.SelectContext(ctx, &genres, query)
+	if err != nil {
+		return nil, err
+	}
+
+	return genres, nil
+}

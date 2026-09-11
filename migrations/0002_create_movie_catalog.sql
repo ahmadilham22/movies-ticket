@@ -63,18 +63,3 @@ CREATE TABLE movie_genres (
 
 CREATE INDEX idx_movie_genres_genre_id
   ON movie_genres (genre_id);
-
-
-BEGIN;
-
-INSERT INTO movies (title, synopsis, duration_minutes, release_date, poster_url, trailer_url, age_rating, language, country)
-VALUES
-  ('The legend of Aang', 'Aang try to find', 0, '2023-01-01', 'http:///google.com', 'http:///google.com', '20', 'Indonesia', 'Indonesia');
-
-INSERT INTO movies (title, synopsis, duration_minutes, release_date, poster_url, trailer_url, age_rating, language, country)
-VALUES
-  ('The legend of Aang', 'Aang try to find', 0, '2023-01-01', 'http:///google.com', 'http:///google.com', '20', 'Indonesia', 'Indonesia');
-
-ROLLBACK;
-
-SELECT * FROM movies;

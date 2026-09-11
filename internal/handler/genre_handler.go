@@ -44,3 +44,24 @@ func (g *GenreHandler) CreateGenre(ctx *gin.Context) {
 
 	response.ResponseSuccess(ctx, http.StatusCreated, "Genre created successfully", genreResponse)
 }
+
+func (g *GenreHandler) GetGenres(ctx *gin.Context) {
+	genres, err := g.gs.GetGenres(ctx.Request.Context())
+	if err != nil {
+		response.ResponseError(ctx, err)
+		return
+	}
+
+	genreResponse := make([]model.GenreResponse, 0, len(genres))
+
+	for _, genre := range genres {
+		genreResponse = append(genreResponse, model.GenreResponse{
+			ID:        genre.ID,
+			Name:      genre.Name,
+			CreatedAt: genre.CreatedAt,
+			UpdatedAt: genre.UpdatedAt,
+		})
+	}
+
+	response.ResponseSuccess(ctx, http.StatusOK, "Genres retrieved successfully", genreResponse)
+}

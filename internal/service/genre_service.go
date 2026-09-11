@@ -15,6 +15,7 @@ var ErrGenreAlreadyExists = errors.New("genre name already exists")
 
 type genreRepository interface {
 	CreateGenre(ctx context.Context, name string) (model.Genre, error)
+	GetGenres(ctx context.Context) ([]model.Genre, error)
 }
 
 type GenreService struct {
@@ -48,4 +49,14 @@ func (g *GenreService) CreateGenre(ctx context.Context, name string) (model.Genr
 
 	return result, nil
 
+}
+
+func (g *GenreService) GetGenres(ctx context.Context) ([]model.Genre, error) {
+
+	result, err := g.gr.GetGenres(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
