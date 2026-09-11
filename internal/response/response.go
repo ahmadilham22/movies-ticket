@@ -56,6 +56,30 @@ func ResponseError(c *gin.Context, err error) {
 		return
 	}
 
+	if errors.Is(err, service.ErrGenreNameRequired) {
+		c.JSON(400, gin.H{
+			"status":  "error",
+			"message": "Genre name is required",
+		})
+		return
+	}
+
+	if errors.Is(err, service.ErrGenreNameTooLong) {
+		c.JSON(400, gin.H{
+			"status":  "error",
+			"message": "Genre name is too long",
+		})
+		return
+	}
+
+	if errors.Is(err, service.ErrGenreAlreadyExists) {
+		c.JSON(409, gin.H{
+			"status":  "error",
+			"message": "Genre name already exists",
+		})
+		return
+	}
+
 	c.JSON(500, gin.H{
 		"status":  "error",
 		"message": "internal server error",
