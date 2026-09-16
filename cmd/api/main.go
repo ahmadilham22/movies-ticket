@@ -45,6 +45,10 @@ func main() {
 	genreService := service.NewGenreService(genreRepository)
 	genreHandler := handler.NewGenreHandler(genreService)
 
+	movieRepository := repository.NewMovieRepository(db)
+	movieService := service.NewMovieService(movieRepository)
+	movieHandler := handler.NewMovieHandler(movieService)
+
 	{
 		protectedRoute := r.Group("/")
 		protectedRoute.Use(middleware.AuthMiddleware([]byte(cfg.SecretKey)))
@@ -54,6 +58,7 @@ func main() {
 		protectedRoute.GET("/transactions", transactionHandler.GetTransaction)
 		protectedRoute.PATCH("/transactions/:bookingCode/cancel", transactionHandler.CancelTransaction)
 		protectedRoute.POST("/genres", genreHandler.CreateGenre)
+		protectedRoute.POST("/movies", movieHandler.CreateMovie)
 	}
 
 	{
