@@ -16,3 +16,8 @@ type Movie struct {
 	CreatedAt       time.Time `db:"created_at"`
 	UpdatedAt       time.Time `db:"updated_at"`
 }
+
+type MovieWithGenres struct {
+	Movie  Movie
+	Genres []Genre
+}

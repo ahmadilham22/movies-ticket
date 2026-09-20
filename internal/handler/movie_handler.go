@@ -67,3 +67,49 @@ func (h *MovieHandler) CreateMovie(ctx *gin.Context) {
 	)
 
 }
+
+func (h *MovieHandler) GetMovies(ctx *gin.Context) {
+	movies, err := h.ms.GetMovies(ctx.Request.Context())
+	if err != nil {
+		response.ResponseError(ctx, err)
+		return
+	}
+
+	movieResponses := make([]model.MovieResponse, 0, len(movies))
+
+	for _, item := range movies {
+		genreResponses := make([]model.GenreSummaryResponse, 0, len(item.Genres))
+
+		for _, genre := range item.Genres {
+			genreResponses = append(
+				genreResponses,
+				model.GenreSummaryResponse{
+					ID:   genre.ID,
+					Name: genre.Name,
+				},
+			)
+		}
+
+		movieResponses = append(movieResponses, model.MovieResponse{
+			ID:              item.Movie.ID,
+			Title:           item.Movie.Title,
+			Synopsis:        item.Movie.Synopsis,
+			DurationMinutes: item.Movie.DurationMinutes,
+			ReleaseDate:     item.Movie.ReleaseDate.Format(time.DateOnly),
+			PosterURL:       item.Movie.PosterURL,
+			TrailerURL:      item.Movie.TrailerURL,
+			AgeRating:       item.Movie.AgeRating,
+			Language:        item.Movie.Language,
+			Country:         item.Movie.Country,
+			Genres:          genreResponses,
+			CreatedAt:       item.Movie.CreatedAt,
+			UpdatedAt:       item.Movie.UpdatedAt,
+		})
+	}
+	response.ResponseSuccess(
+		ctx,
+		http.StatusOK,
+		"Movies retrieved successfully",
+		movieResponses,
+	)
+}

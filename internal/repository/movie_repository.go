@@ -8,6 +8,12 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+type movieGenreRow struct {
+	model.Movie
+	GenreID   *string `db:"genre_id"`
+	GenreName *string `db:"genre_name"`
+}
+
 var (
 	ErrGenreNotFound            = errors.New("genre not found")
 	ErrMovieGenreInsertMismatch = errors.New("movie genre insert mismatch")
@@ -93,4 +99,37 @@ func (r *MovieRepository) CreateMovie(ctx context.Context, movie model.Movie, ge
 	}
 
 	return createdMovie, genres, nil
+}
+
+func (r *MovieRepository) GetMovies(ctx context.Context) ([]model.MovieWithGenres, error) {
+	rows := make([]movieGenreRow, 0)
+
+	query := "SELECT m.id AS id, title, synopsis, duration_minutes, release_date, poster_url, trailer_url, age_rating, language, country, m.created_at, m.updated_at, g.id AS genre_id, g.name AS genre_name FROM movies m LEFT JOIN movie_genres mg ON mg.movie_id = m.id LEFT JOIN genres g ON g.id = mg.genre_id ORDER BY m.release_date DESC, m.title ASC, g.name ASC"
+
+	err := r.db.SelectContext(ctx, &rows, query)
+
+	if err != nil {
+		return nil, err
+	}
+
+	results := make([]model.MovieWithGenres, 0)
+	movieIndexes := make(map[string]int)
+	for _, row := range rows {
+		index, exists := movieIndexes[row.ID]
+		if !exists {
+			index = len(results)
+			results = append(results, model.MovieWithGenres{
+				Movie:  row.Movie,
+				Genres: make([]model.Genre, 0),
+			})
+			movieIndexes[row.ID] = index
+		}
+
+		if row.GenreID != nil && row.GenreName != nil {
+			results[index].Genres = append(results[index].Genres, model.Genre{ID: *row.GenreID, Name: *row.GenreName})
+		}
+
+	}
+
+	return results, nil
 }

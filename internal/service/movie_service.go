@@ -45,6 +45,7 @@ func exceedsRuneLimit(value string, max int) bool {
 
 type movieRepository interface {
 	CreateMovie(ctx context.Context, movie model.Movie, genreIDs []string) (model.Movie, []model.Genre, error)
+	GetMovies(ctx context.Context) ([]model.MovieWithGenres, error)
 }
 
 type MovieService struct {
@@ -108,7 +109,7 @@ func (s *MovieService) CreateMovie(ctx context.Context, request model.CreateMovi
 
 	seenGenreIDs := make(map[string]struct{}, len(request.GenreIDs))
 	normalizedGenreIDs := make([]string, 0, len(request.GenreIDs))
-	
+
 	for _, genreID := range request.GenreIDs {
 		normalizedID := strings.ToLower(strings.TrimSpace(genreID))
 		_, exists := seenGenreIDs[normalizedID]
@@ -148,4 +149,15 @@ func (s *MovieService) CreateMovie(ctx context.Context, request model.CreateMovi
 	}
 
 	return movie, genres, nil
+}
+
+func (s *MovieService) GetMovies(
+	ctx context.Context,
+) ([]model.MovieWithGenres, error) {
+	movies, err := s.repo.GetMovies(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return movies, nil
 }
