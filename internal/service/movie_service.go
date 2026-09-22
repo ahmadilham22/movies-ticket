@@ -20,6 +20,7 @@ var (
 	ErrInvalidPosterURL        = errors.New("invalid poster URL")
 	ErrInvalidTrailerURL       = errors.New("invalid trailer URL")
 	ErrMovieGenreNotFound      = errors.New("movie genre not found")
+	ErrMovieNotFound           = errors.New("movie not found")
 )
 
 func isValidHTTPURL(httpURL string) bool {
@@ -46,6 +47,7 @@ func exceedsRuneLimit(value string, max int) bool {
 type movieRepository interface {
 	CreateMovie(ctx context.Context, movie model.Movie, genreIDs []string) (model.Movie, []model.Genre, error)
 	GetMovies(ctx context.Context) ([]model.MovieWithGenres, error)
+	GetMoviesByID(ctx context.Context, id string) (model.MovieWithGenres, error)
 }
 
 type MovieService struct {
@@ -151,13 +153,23 @@ func (s *MovieService) CreateMovie(ctx context.Context, request model.CreateMovi
 	return movie, genres, nil
 }
 
-func (s *MovieService) GetMovies(
-	ctx context.Context,
-) ([]model.MovieWithGenres, error) {
+func (s *MovieService) GetMovies(ctx context.Context) ([]model.MovieWithGenres, error) {
 	movies, err := s.repo.GetMovies(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	return movies, nil
+}
+
+func (s *MovieService) GetMoviesByID(ctx context.Context, id string) (model.MovieWithGenres, error) {
+	movie, err := s.repo.GetMoviesByID(ctx, id)
+	if err != nil {
+		if errors.Is(err, repository.ErrMovieNotFound) {
+			return model.MovieWithGenres{}, ErrMovieNotFound
+		}
+		return model.MovieWithGenres{}, err
+	}
+
+	return movie, nil
 }

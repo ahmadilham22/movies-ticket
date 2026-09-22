@@ -144,6 +144,14 @@ func ResponseError(c *gin.Context, err error) {
 		return
 	}
 
+	if errors.Is(err, service.ErrMovieNotFound) {
+		c.JSON(404, gin.H{
+			"status":  "error",
+			"message": "Movie not found",
+		})
+		return
+	}
+
 	c.JSON(500, gin.H{
 		"status":  "error",
 		"message": "internal server error",

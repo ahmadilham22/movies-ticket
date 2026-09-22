@@ -17,6 +17,7 @@ type movieGenreRow struct {
 var (
 	ErrGenreNotFound            = errors.New("genre not found")
 	ErrMovieGenreInsertMismatch = errors.New("movie genre insert mismatch")
+	ErrMovieNotFound            = errors.New("movie not found")
 )
 
 type MovieRepository struct {
@@ -129,6 +130,34 @@ func (r *MovieRepository) GetMovies(ctx context.Context) ([]model.MovieWithGenre
 			results[index].Genres = append(results[index].Genres, model.Genre{ID: *row.GenreID, Name: *row.GenreName})
 		}
 
+	}
+
+	return results, nil
+}
+
+func (r *MovieRepository) GetMoviesByID(ctx context.Context, id string) (model.MovieWithGenres, error) {
+	rows := make([]movieGenreRow, 0)
+
+	query := "SELECT m.id AS id, title, synopsis, duration_minutes, release_date, poster_url, trailer_url, age_rating, language, country, m.created_at, m.updated_at, g.id AS genre_id, g.name AS genre_name FROM movies m LEFT JOIN movie_genres mg ON mg.movie_id = m.id LEFT JOIN genres g ON g.id = mg.genre_id WHERE m.id = $1 ORDER BY g.name ASC"
+
+	err := r.db.SelectContext(ctx, &rows, query, id)
+	if err != nil {
+		return model.MovieWithGenres{}, err
+	}
+
+	if len(rows) == 0 {
+		return model.MovieWithGenres{}, ErrMovieNotFound
+	}
+
+	results := model.MovieWithGenres{
+		Movie:  rows[0].Movie,
+		Genres: make([]model.Genre, 0),
+	}
+
+	for _, row := range rows {
+		if row.GenreID != nil && row.GenreName != nil {
+			results.Genres = append(results.Genres, model.Genre{ID: *row.GenreID, Name: *row.GenreName})
+		}
 	}
 
 	return results, nil

@@ -113,3 +113,55 @@ func (h *MovieHandler) GetMovies(ctx *gin.Context) {
 		movieResponses,
 	)
 }
+
+func (h *MovieHandler) GetMovieByID(ctx *gin.Context) {
+	var req model.GetMovieByIDRequest
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": "Invalid movie ID",
+		})
+		return
+	}
+
+	movie, err := h.ms.GetMoviesByID(ctx.Request.Context(), req.ID)
+	if err != nil {
+		response.ResponseError(ctx, err)
+		return
+	}
+
+	genreResponses := make([]model.GenreSummaryResponse, 0, len(movie.Genres))
+
+	for _, genre := range movie.Genres {
+		genreResponses = append(
+			genreResponses,
+			model.GenreSummaryResponse{
+				ID:   genre.ID,
+				Name: genre.Name,
+			},
+		)
+	}
+
+	movieResponse := model.MovieResponse{
+		ID:              movie.Movie.ID,
+		Title:           movie.Movie.Title,
+		Synopsis:        movie.Movie.Synopsis,
+		DurationMinutes: movie.Movie.DurationMinutes,
+		ReleaseDate:     movie.Movie.ReleaseDate.Format(time.DateOnly),
+		PosterURL:       movie.Movie.PosterURL,
+		TrailerURL:      movie.Movie.TrailerURL,
+		AgeRating:       movie.Movie.AgeRating,
+		Language:        movie.Movie.Language,
+		Country:         movie.Movie.Country,
+		Genres:          genreResponses,
+		CreatedAt:       movie.Movie.CreatedAt,
+		UpdatedAt:       movie.Movie.UpdatedAt,
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "Movie retrieved successfully",
+		"data":    movieResponse,
+	})
+
+}

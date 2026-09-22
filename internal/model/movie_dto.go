@@ -35,3 +35,7 @@ type MovieResponse struct {
 	CreatedAt       time.Time              `json:"created_at"`
 	UpdatedAt       time.Time              `json:"updated_at"`
 }
+
+type GetMovieByIDRequest struct {
+	ID string `uri:"id" binding:"required,uuid"`
+}

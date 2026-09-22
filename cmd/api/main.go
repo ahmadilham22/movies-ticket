@@ -67,6 +67,7 @@ func main() {
 		r.POST("/login", userHandler.Login)
 		r.GET("/genres", genreHandler.GetGenres)
 		r.GET("/movies", movieHandler.GetMovies)
+		r.GET("/movies/:id", movieHandler.GetMovieByID)
 	}
 
 	log.Printf("Server is running on port %s...", cfg.Port)
