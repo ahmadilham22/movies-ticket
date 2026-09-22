@@ -41,6 +41,14 @@ func main() {
 	transactionService := service.NewTransactionService(transactionRepository)
 	transactionHandler := handler.NewTransactionHandler(transactionService)
 
+	genreRepository := repository.NewGenreRepository(db)
+	genreService := service.NewGenreService(genreRepository)
+	genreHandler := handler.NewGenreHandler(genreService)
+
+	movieRepository := repository.NewMovieRepository(db)
+	movieService := service.NewMovieService(movieRepository)
+	movieHandler := handler.NewMovieHandler(movieService)
+
 	{
 		protectedRoute := r.Group("/")
 		protectedRoute.Use(middleware.AuthMiddleware([]byte(cfg.SecretKey)))
@@ -49,12 +57,17 @@ func main() {
 		protectedRoute.GET("/users", userHandler.GetUsers)
 		protectedRoute.GET("/transactions", transactionHandler.GetTransaction)
 		protectedRoute.PATCH("/transactions/:bookingCode/cancel", transactionHandler.CancelTransaction)
+		protectedRoute.POST("/genres", genreHandler.CreateGenre)
+		protectedRoute.POST("/movies", movieHandler.CreateMovie)
 	}
 
 	{
 		r.GET("/tickets", ticketHandler.GetTickets)
 		r.POST("/users", userHandler.Register)
 		r.POST("/login", userHandler.Login)
+		r.GET("/genres", genreHandler.GetGenres)
+		r.GET("/movies", movieHandler.GetMovies)
+		r.GET("/movies/:id", movieHandler.GetMovieByID)
 	}
 
 	log.Printf("Server is running on port %s...", cfg.Port)
