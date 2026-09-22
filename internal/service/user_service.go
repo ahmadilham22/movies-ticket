@@ -58,7 +58,7 @@ func (u *UserService) Login(data model.LoginRequest) (string, error) {
 		return "", ErrInvalidCredentials
 	}
 
-	tokenString, err := utils.CreateToken(result.Id, u.secretKey)
+	tokenString, err := utils.CreateToken(result.Id, result.Role, u.secretKey)
 	if err != nil {
 		return "", err
 	}

@@ -53,12 +53,12 @@ func main() {
 		protectedRoute := r.Group("/")
 		protectedRoute.Use(middleware.AuthMiddleware([]byte(cfg.SecretKey)))
 		protectedRoute.POST("/tickets", ticketHandler.BuyTicket)
-		protectedRoute.POST("/tickets/create", ticketHandler.CreateTicket)
-		protectedRoute.GET("/users", userHandler.GetUsers)
+		protectedRoute.POST("/tickets/create", middleware.AdminMiddleware(), ticketHandler.CreateTicket)
+		protectedRoute.GET("/users", middleware.AdminMiddleware(), userHandler.GetUsers)
 		protectedRoute.GET("/transactions", transactionHandler.GetTransaction)
 		protectedRoute.PATCH("/transactions/:bookingCode/cancel", transactionHandler.CancelTransaction)
-		protectedRoute.POST("/genres", genreHandler.CreateGenre)
-		protectedRoute.POST("/movies", movieHandler.CreateMovie)
+		protectedRoute.POST("/genres", middleware.AdminMiddleware(), genreHandler.CreateGenre)
+		protectedRoute.POST("/movies", middleware.AdminMiddleware(), movieHandler.CreateMovie)
 	}
 
 	{
