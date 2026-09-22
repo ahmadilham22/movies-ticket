@@ -26,7 +26,15 @@ func AuthMiddleware(secret []byte) gin.HandlerFunc {
 			return
 		}
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-			ctx.Set("userId", claims["id"])
+			userID, idOK := claims["id"].(string)
+			role, roleOK := claims["role"].(string)
+			if !idOK || userID == "" || !roleOK || role == "" {
+				ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized: Invalid token claims"})
+				return
+			}
+
+			ctx.Set("userId", userID)
+			ctx.Set("role", role)
 			ctx.Next()
 		} else {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized: Invalid token claims"})
