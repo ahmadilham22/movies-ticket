@@ -29,14 +29,21 @@ func (t *TicketHandler) GetTickets(ctx *gin.Context) {
 }
 
 func (t *TicketHandler) CreateTicket(ctx *gin.Context) {
-	ticket := model.Ticket{}
+	req := model.CreateTicketRequest{}
 
-	if err := ctx.ShouldBindJSON(&ticket); err != nil {
+	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(400, gin.H{
 			"status":  "error",
 			"message": "Invalid request body",
 		})
 		return
+	}
+
+	ticket := model.Ticket{
+		MovieId:  req.MovieID,
+		StartsAt: req.StartsAt,
+		Price:    req.Price,
+		Quota:    *req.Quota,
 	}
 
 	result, err := t.ts.CreateTicket(ticket)
@@ -45,7 +52,7 @@ func (t *TicketHandler) CreateTicket(ctx *gin.Context) {
 		return
 	}
 
-	response.ResponseSuccess(ctx, 200, "Data retrieved successfully", result)
+	response.ResponseSuccess(ctx, 201, "Showtime created successfully", result)
 }
 
 func (t *TicketHandler) BuyTicket(ctx *gin.Context) {

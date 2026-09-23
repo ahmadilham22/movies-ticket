@@ -152,6 +152,14 @@ func ResponseError(c *gin.Context, err error) {
 		return
 	}
 
+	if errors.Is(err, service.ErrShowTimeNotInFuture) {
+		c.JSON(400, gin.H{
+			"status":  "error",
+			"message": "Showtime must be in the future",
+		})
+		return
+	}
+
 	c.JSON(500, gin.H{
 		"status":  "error",
 		"message": "internal server error",

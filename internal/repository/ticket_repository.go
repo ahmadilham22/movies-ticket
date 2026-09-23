@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"online-ticketing/internal/model"
+	"github.com/jackc/pgx/v5/pgconn"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -23,7 +24,7 @@ func NewTicketRepository(db *sqlx.DB) *TicketRepository {
 
 func (t *TicketRepository) GetAllTickets() ([]model.Ticket, error) {
 	tickets := []model.Ticket{}
-	err := t.db.Select(&tickets, "SELECT * FROM tickets ORDER BY id ASC")
+	err := t.db.Select(&tickets, "SELECT * FROM tickets ORDER BY starts_at, id ASC")
 	if err != nil {
 		return nil, err
 	}
@@ -40,14 +41,24 @@ func (t *TicketRepository) CreateTicket(ticket model.Ticket) (model.Ticket, erro
 
 	defer tx.Rollback()
 
-	query := "INSERT INTO tickets (event_name, price, quota) VALUES ($1, $2, $3) RETURNING *"
+	query := "INSERT INTO tickets (movie_id, starts_at, price, quota) VALUES ($1, $2, $3, $4) RETURNING *"
 
-	err = tx.Get(&result, query, ticket.EventName, ticket.Price, ticket.Quota)
+	err = tx.Get(&result, query, ticket.MovieId, ticket.StartsAt, ticket.Price, ticket.Quota)
 
 	if err != nil {
+		if pgErr, ok := errors.AsType[*pgconn.PgError](err); ok {
+				if pgErr.Code == "23503" &&
+					pgErr.ConstraintName == "fk_tickets_movie" {
+					return ticket, ErrMovieNotFound
+				}
+			}
+			return ticket, err
+	}
+
+	if err := tx.Commit(); err != nil {
 		return ticket, err
 	}
-	tx.Commit()
+
 	return result, nil
 }
 

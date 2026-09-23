@@ -4,11 +4,12 @@ import "time"
 
 type Ticket struct {
 	Id        string    `db:"id" json:"id"`
-	EventName string    `db:"event_name" json:"event_name"`
 	Price     int       `db:"price" json:"price"`
 	Quota     int       `db:"quota" json:"quota"`
 	CreatedAt time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
+	MovieId   string    `db:"movie_id" json:"movie_id"`
+	StartsAt  time.Time `db:"starts_at" json:"starts_at"`
 }
 
 type BuyTicketRequest struct {

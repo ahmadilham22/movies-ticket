@@ -4,10 +4,12 @@ import (
 	"errors"
 	"online-ticketing/internal/model"
 	"online-ticketing/internal/repository"
+	"time"
 )
 
 var ErrInvalidQuantity = errors.New("invalid quantity")
 var ErrTicketSoldOut = errors.New("ticket sold out")
+var ErrShowTimeNotInFuture = errors.New("showtime must be in the future")
 
 type TicketService struct {
 	tp *repository.TicketRepository
@@ -28,8 +30,15 @@ func (t *TicketService) FetchAllTickets() ([]model.Ticket, error) {
 }
 
 func (t *TicketService) CreateTicket(ticket model.Ticket) (model.Ticket, error) {
+	if !ticket.StartsAt.After(time.Now()) {
+		return ticket, ErrShowTimeNotInFuture
+	}
+
 	result, err := t.tp.CreateTicket(ticket)
 	if err != nil {
+		if errors.Is(err, repository.ErrMovieNotFound) {
+			return ticket, ErrMovieNotFound
+		}
 		return ticket, err
 	}
 
