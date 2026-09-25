@@ -13,6 +13,6 @@ type Ticket struct {
 }
 
 type BuyTicketRequest struct {
-	TicketID string `json:"ticket_id"`
+	TicketID string `json:"ticket_id" binding:"required,uuid"`
 	Quantity int    `json:"quantity"`
 }

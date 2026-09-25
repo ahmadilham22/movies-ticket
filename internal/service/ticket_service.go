@@ -10,6 +10,8 @@ import (
 var ErrInvalidQuantity = errors.New("invalid quantity")
 var ErrTicketSoldOut = errors.New("ticket sold out")
 var ErrShowTimeNotInFuture = errors.New("showtime must be in the future")
+var ErrShowtimeStarted = errors.New("showtime has already started")
+var ErrTicketNotFound = errors.New("ticket not found")
 
 type TicketService struct {
 	tp *repository.TicketRepository
@@ -56,6 +58,15 @@ func (t *TicketService) BuyTicket(ticket model.BuyTicketRequest, userId string) 
 		if errors.Is(err, repository.ErrTicketSoldOut) {
 			return ErrTicketSoldOut
 		}
+
+		if errors.Is(err, repository.ErrShowtimeStarted) {
+			return ErrShowtimeStarted
+		}
+
+		if errors.Is(err, repository.ErrTicketNotFound) {
+			return ErrTicketNotFound
+		}
+
 		return err
 	}
 
