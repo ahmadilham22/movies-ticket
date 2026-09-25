@@ -1,3 +1,4 @@
+BEGIN;
 CREATE TABLE genres (
 	id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 	name VARCHAR(64) NOT NULL,
@@ -63,3 +64,5 @@ CREATE TABLE movie_genres (
 
 CREATE INDEX idx_movie_genres_genre_id
   ON movie_genres (genre_id);
+
+COMMIT;
